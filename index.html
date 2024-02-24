@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Finance Tracker</title>
+
+
+
+<!-- <style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  input, select, button {
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  #expenses {
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  #remaining-amount {
+    font-size: 18px;
+    font-weight: bold;
+  }
+</style> -->
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f7f7f7; /* Soft background color */
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff; /* White background for the container */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  padding: 20px; /* Padding for the container */
+}
+
+h1 {
+  text-align: center;
+  color: #333; /* Darker text color */
+  margin-bottom: 20px; /* Add space below the heading */
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  margin-bottom: 10px;
+  padding: 10px; /* Increase padding for better touch experience */
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Rounded corners */
+  outline: none; /* Remove outline on focus */
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#expenses {
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px; /* Add space below the table */
+}
+
+th, td {
+  padding: 12px; /* Increase padding for better readability */
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+#remaining-amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333; /* Darker text color */
+  margin-top: 20px; /* Add space above the remaining amount */
+}
+</style>
+
+</head>
+<body>
+<div class="container">
+  <h1>Personal Finance Tracker</h1>
+  <form id="income-form">
+    <label for="income">Enter Income:</label>
+    <input type="number" id="income" required>
+    <button type="submit">Log Income</button>
+  </form>
+  <form id="expense-form">
+    <label for="expense-name">Expense Name:</label>
+    <input type="text" id="expense-name" required>
+    <label for="expense-amount">Expense Amount:</label>
+    <input type="number" id="expense-amount" required>
+    <label for="expense-type">Expense Type:</label>
+    <select id="expense-type" required>
+      <option value="" disabled selected>Select Type</option>
+      <option value="food">Food</option>
+      <option value="bills">Bills</option>
+      <option value="transportation">Transportation</option>
+      <option value="entertainment">Entertainment</option>
+      <option value="other">Other</option>
+    </select>
+    <button type="submit">Log Expense</button>
+  </form>
+  <div id="expenses"></div>
+  <div id="remaining-amount"></div>
+</div>
+<script>
+  const incomeForm = document.getElementById("income-form");
+  const expenseForm = document.getElementById("expense-form");
+  const expensesDiv = document.getElementById("expenses");
+  const remainingAmountDiv = document.getElementById("remaining-amount");
+  
+  let income = 0;
+  let expenses = [];
+  
+  incomeForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    income += parseFloat(document.getElementById("income").value);
+    updateRemainingAmount();
+  });
+  
+  expenseForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const expenseName = document.getElementById("expense-name").value;
+    const expenseAmount = parseFloat(document.getElementById("expense-amount").value);
+    const expenseType = document.getElementById("expense-type").value;
+    const date = new Date().toLocaleDateString();
+    expenses.push({ name: expenseName, amount: expenseAmount, type: expenseType, date: date });
+    renderExpenses();
+    updateRemainingAmount();
+    // Clear form fields
+    document.getElementById("expense-name").value = "";
+    document.getElementById("expense-amount").value = "";
+    document.getElementById("expense-type").selectedIndex = 0;
+  });
+  
+  function renderExpenses() {
+    expensesDiv.innerHTML = "";
+    const table = document.createElement("table");
+    const headerRow = table.insertRow();
+    const headers = ["Name", "Amount", "Type", "Date"];
+    headers.forEach(headerText => {
+      const th = document.createElement("th");
+      th.textContent = headerText;
+      headerRow.appendChild(th);
+    });
+    expenses.forEach(expense => {
+      const row = table.insertRow();
+      Object.values(expense).forEach(val => {
+        const cell = row.insertCell();
+        cell.textContent = val;
+      });
+    });
+    expensesDiv.appendChild(table);
+  }
+  
+  function updateRemainingAmount() {
+    const totalExpenses = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+    const remainingAmount = income - totalExpenses;
+    remainingAmountDiv.textContent = `Remaining Amount: $${remainingAmount.toFixed(2)}`;
+  }
+</script>
+</body>
+</html>
